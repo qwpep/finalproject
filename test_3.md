@@ -2,6 +2,7 @@ Test 3 (add saving goal, update income and calculate total)
 -
 
 **To add saving goal select 3**
+
 Input:
 
     3
