@@ -1,3 +1,272 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <limits>
+#include <cstdlib>
+
+using namespace std;
+
+// Define a struct to represent a record with a description and an amount
+struct Record
+{
+    string description;
+    double amount;
+};
+
+// Function to load records from a file and return them as a vector of Records
+vector<Record> loadRecords(const string &fileName)
+{
+    ifstream file(fileName);
+    vector<Record> records;
+    if (file.is_open())
+    {
+        Record record;
+        while (file >> record.description >> record.amount)
+        {
+            records.push_back(record);
+        }
+        file.close();
+    }
+    return records;
+}
+
+// Function to save records to a file
+void saveRecords(const string &fileName, const vector<Record> &records)
+{
+    ofstream file(fileName);
+    if (file.is_open())
+    {
+        for (const auto &record : records)
+        {
+            file << record.description << " " << record.amount << "\n";
+        }
+        file.close();
+    }
+    else
+    {
+        cerr << "Error: Unable to save records." << endl;
+    }
+}
+
+// Function to add a new record to a vector of Records
+void addRecord(vector<Record> &records)
+{
+    string description;
+    double amount;
+
+    // Get user input for description
+    cout << "Enter description: ";
+    cin.ignore();
+    getline(cin, description);
+
+    // Get user input for amount
+    cout << "Enter amount: ";
+    while (!(cin >> amount))
+    {
+        cout << "Invalid input. Please enter a valid amount: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    // Check if the record already exists, update the amount if so, otherwise add a new record
+    bool found = false;
+    for (auto &record : records)
+    {
+        if (record.description == description)
+        {
+            record.amount += amount;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        Record newRecord;
+        newRecord.description = description;
+        newRecord.amount = amount;
+        records.push_back(newRecord);
+    }
+
+    cout << "Record added successfully." << endl;
+}
+
+// Function to view records in a vector of Records
+void viewRecords(const vector<Record> &records, const string &type)
+{
+    if (records.empty())
+    {
+        cout << "No " << type << " found." << endl;
+    }
+    else
+    {
+        cout << type << ":" << endl;
+        for (size_t i = 0; i < records.size(); ++i)
+        {
+            cout << i + 1 << ". Description: " << records[i].description << ", Amount: $" << records[i].amount << endl;
+        }
+    }
+}
+
+// Function to update a record in a vector of Records
+void updateRecord(vector<Record> &records)
+{
+    viewRecords(records, "records");
+    if (records.empty())
+    {
+        return;
+    }
+
+    // Get user input for which record to update
+    int choice;
+    cout << "Enter the record number to update (or 0 to go back): ";
+    while (!(cin >> choice) || (choice < 0 || choice > records.size()))
+    {
+        cout << "Invalid input. Please enter a valid record number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    if (choice == 0)
+    {
+        return;
+    }
+
+    // Update the selected record
+    Record &record = records[choice - 1];
+    cout << "Updating record: " << record.description << ", Amount: $" << record.amount << endl;
+
+    string oldDescription = record.description;
+    cout << "Enter new description: ";
+    cin.ignore();
+    getline(cin, record.description);
+
+    cout << "Enter new amount: ";
+    double newAmount;
+    while (!(cin >> newAmount))
+    {
+        cout << "Invalid input. Please enter a valid amount: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    record.amount = newAmount;
+
+    // Combine duplicates if any
+    for (size_t i = 0; i < records.size(); ++i)
+    {
+        if (i != (choice - 1) && records[i].description == record.description)
+        {
+            record.amount += records[i].amount;
+            records.erase(records.begin() + i);
+            if (i < choice - 1)
+            {
+                choice--;
+            }
+            i--;
+        }
+    }
+
+    cout << "Record updated and duplicates combined successfully." << endl;
+}
+
+// Function to select which type of record to update
+void selectUpdateRecord(vector<Record> &incomes, vector<Record> &expenses, vector<Record> &savingGoals)
+{
+    cout << "1. Update Income\n"
+            "2. Update Expense\n"
+            "3. Update Saving Goals\n"
+            "0. Go Back\n"
+            "Enter your choice: ";
+    int updateChoice;
+    while (!(cin >> updateChoice) || (updateChoice < 0 || updateChoice > 3))
+    {
+        cout << "Invalid input. Please enter a valid choice: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    if (updateChoice == 1)
+    {
+        updateRecord(incomes);
+    }
+    else if (updateChoice == 2)
+    {
+        updateRecord(expenses);
+    }
+    else if (updateChoice == 3)
+    {
+        updateRecord(savingGoals);
+    }
+    else if (updateChoice == 0)
+    {
+        return;
+    }
+}
+
+// Function to delete a record from a vector of Records
+void deleteRecord(vector<Record> &records)
+{
+    viewRecords(records, "records");
+    if (records.empty())
+    {
+        return;
+    }
+
+    // Get user input for which record to delete
+    int choice;
+    cout << "Enter the record number to delete (or 0 to go back): ";
+    while (!(cin >> choice) || (choice < 0 || choice > records.size()))
+    {
+        cout << "Invalid input. Please enter a valid record number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    if (choice == 0)
+    {
+        return;
+    }
+
+    // Delete the selected record
+    records.erase(records.begin() + choice - 1);
+    cout << "Record deleted successfully." << endl;
+}
+
+// Function to select which type of record to delete
+void selectDeleteRecord(vector<Record> &incomes, vector<Record> &expenses, vector<Record> &savingGoals)
+{
+    cout << "1. Delete Income\n"
+            "2. Delete Expense\n"
+            "3. Delete Saving Goals\n"
+            "0. Go Back\n"
+            "Enter your choice: ";
+    int deleteChoice;
+    while (!(cin >> deleteChoice) || (deleteChoice < 0 || deleteChoice > 3))
+    {
+        cout << "Invalid input. Please enter a valid choice: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    if (deleteChoice == 1)
+    {
+        deleteRecord(incomes);
+    }
+    else if (deleteChoice == 2)
+    {
+        deleteRecord(expenses);
+    }
+    else if (deleteChoice == 3)
+    {
+        deleteRecord(savingGoals);
+    }
+    else if (deleteChoice == 0)
+    {
+        return;
+    }
+}
+
 // Function to calculate the total amount from a vector of Records
 double calculateTotal(const vector<Record> &records)
 {
