@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <cstdlib>
 
 using namespace std;
 
@@ -10,12 +11,6 @@ struct Record
 {
     string description;
     double amount;
-};
-
-struct SavingGoal
-{
-    string description;
-    double goalAmount;
 };
 
 vector<Record> loadRecords(const string &fileName)
@@ -115,36 +110,86 @@ void updateRecord(vector<Record> &records)
     }
 
     int choice;
+    cout << "Enter the record number to update (or 0 to go back): ";
+    while (!(cin >> choice) || (choice < 0 || choice > records.size()))
     {
-        cout << "Enter the record number to update: ";
-        while (!(cin >> choice) || (choice < 1 || choice > records.size()))
-        {
-            cout << "Invalid input. Please enter a valid record number: ";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        }
-
-        Record &record = records[choice - 1];
-        cout << "Updating record: " << record.description << ", Amount: $" << record.amount << endl;
-
-        cout << "Enter new description: ";
-        cin.ignore();
-        getline(cin, record.description);
-
-        cout << "Enter new amount: ";
-        double newAmount;
-        while (!(cin >> newAmount))
-        {
-            cout << "Invalid input. Please enter a valid amount: ";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        }
-        record.amount = newAmount;
-
-        cout << "Record updated successfully." << endl;
+        cout << "Invalid input. Please enter a valid record number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+
+    if (choice == 0)
+    {
+        return;
+    }
+
+    Record &record = records[choice - 1];
+    cout << "Updating record: " << record.description << ", Amount: $" << record.amount << endl;
+
+    string oldDescription = record.description;
+    cout << "Enter new description: ";
+    cin.ignore();
+    getline(cin, record.description);
+
+    cout << "Enter new amount: ";
+    double newAmount;
+    while (!(cin >> newAmount))
+    {
+        cout << "Invalid input. Please enter a valid amount: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    record.amount = newAmount;
+
+    for (size_t i = 0; i < records.size(); ++i)
+    {
+        if (i != (choice - 1) && records[i].description == record.description)
+        {
+            record.amount += records[i].amount;
+            records.erase(records.begin() + i);
+            if (i < choice - 1)
+            {
+                choice--;
+            }
+            i--;
+        }
+    }
+
+    cout << "Record updated and duplicates combined successfully." << endl;
 }
 
+void selectUpdateRecord(vector<Record> &incomes, vector<Record> &expenses, vector<Record> &savingGoals)
+{
+    cout << "1. Update Income\n"
+            "2. Update Expense\n"
+            "3. Update Saving Goals\n"
+            "0. Go Back\n"
+            "Enter your choice: ";
+    int updateChoice;
+    while (!(cin >> updateChoice) || (updateChoice < 0 || updateChoice > 3))
+    {
+        cout << "Invalid input. Please enter a valid choice: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    if (updateChoice == 1)
+    {
+        updateRecord(incomes);
+    }
+    else if (updateChoice == 2)
+    {
+        updateRecord(expenses);
+    }
+    else if (updateChoice == 3)
+    {
+        updateRecord(savingGoals);
+    }
+    else if (updateChoice == 0)
+    {
+        return;
+    }
+}
 
 void deleteRecord(vector<Record> &records)
 {
@@ -155,111 +200,52 @@ void deleteRecord(vector<Record> &records)
     }
 
     int choice;
-    cout << "Enter the record number to delete: ";
-    cin >> choice;
-    if (choice >= 1 && choice <= records.size())
+    cout << "Enter the record number to delete (or 0 to go back): ";
+    while (!(cin >> choice) || (choice < 0 || choice > records.size()))
     {
-        records.erase(records.begin() + choice - 1);
-    }
-    else
-    {
-        cerr << "Invalid record number." << endl;
-    }
-}
-
-void addSavingGoal(vector<SavingGoal> &goals)
-{
-    SavingGoal newGoal;
-    cout << "Enter saving goal description: ";
-    cin.ignore();
-    getline(cin, newGoal.description);
-
-
-    cout << "Enter saving goal amount: ";
-    while (!(cin >> newGoal.goalAmount))
-    {
-        cout << "Invalid input. Please enter a valid goal amount: ";
+        cout << "Invalid input. Please enter a valid record number: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    goals.push_back(newGoal);
-    cout << "Saving goal added successfully." << endl;
-}
-
-void viewSavingGoals(const vector<SavingGoal> &goals)
-{
-    if (goals.empty())
-    {
-        cout << "No saving goals found." << endl;
-    }
-    else
-    {
-        cout << "Saving Goals:" << endl;
-        for (size_t i = 0; i < goals.size(); ++i)
-        {
-            cout << i + 1 << ". Description: " << goals[i].description << ", Goal Amount: $" << goals[i].goalAmount << endl;
-        }
-    }
-}
-
-void updateSavingGoal(vector<SavingGoal> &goals)
-{
-    viewSavingGoals(goals);
-    if (goals.empty())
+    if (choice == 0)
     {
         return;
     }
 
-    int choice;
-    {
-        cout << "Enter the saving goal number to update: ";
-        while (!(cin >> choice) || (choice < 1 || choice > goals.size()))
-        {
-            cout << "Invalid input. Please enter a valid saving goal number: ";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        }
-
-        SavingGoal &goal = goals[choice - 1];
-        cout << "Updating saving goal: " << goal.description << ", Goal Amount: $" << goal.goalAmount << endl;
-
-        cout << "Enter new description: ";
-        cin.ignore();
-        getline(cin, goal.description);
-
-        cout << "Enter new goal amount: ";
-        double newGoalAmount;
-        while (!(cin >> newGoalAmount))
-        {
-            cout << "Invalid input. Please enter a valid goal amount: ";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        }
-        goal.goalAmount = newGoalAmount;
-
-        cout << "Saving goal updated successfully." << endl;
-
-    }
+    records.erase(records.begin() + choice - 1);
+    cout << "Record deleted successfully." << endl;
 }
-void deleteSavingGoal(vector<SavingGoal> &goals)
+void selectDeleteRecord(vector<Record> &incomes, vector<Record> &expenses, vector<Record> &savingGoals)
 {
-    viewSavingGoals(goals);
-    if (goals.empty())
+    cout << "1. Delete Income\n"
+            "2. Delete Expense\n"
+            "3. Delete Saving Goals\n"
+            "0. Go Back\n"
+            "Enter your choice: ";
+    int deleteChoice;
+    while (!(cin >> deleteChoice) || (deleteChoice < 0 || deleteChoice > 3))
+    {
+        cout << "Invalid input. Please enter a valid choice: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    if (deleteChoice == 1)
+    {
+        deleteRecord(incomes);
+    }
+    else if (deleteChoice == 2)
+    {
+        deleteRecord(expenses);
+    }
+    else if (deleteChoice == 3)
+    {
+        deleteRecord(savingGoals);
+    }
+    else if (deleteChoice == 0)
     {
         return;
-    }
-
-    int choice;
-    cout << "Enter the saving goal number to delete: ";
-    cin >> choice;
-    if (choice >= 1 && choice <= goals.size())
-    {
-        goals.erase(goals.begin() + choice - 1);
-    }
-    else
-    {
-        cerr << "Invalid saving goal number." << endl;
     }
 }
 
@@ -273,37 +259,34 @@ double calculateTotal(const vector<Record> &records)
     return total;
 }
 
-void calculateSummary(const vector<Record> &incomes, const vector<Record> &expenses, const vector<SavingGoal> &goals)
+void calculateSummary(const vector<Record> &incomes, const vector<Record> &expenses, const vector<Record> &savingGoals)
 {
     double totalIncomes = calculateTotal(incomes);
     double totalExpenses = calculateTotal(expenses);
-    double totalSavings = 0;
-    for (const auto &goal : goals)
-    {
-        totalSavings += goal.goalAmount;
-    }
-    double remainingAmountWithSavings = totalIncomes - totalExpenses - totalSavings;
-    double remainingAmountWithoutSavings = totalIncomes - totalExpenses;
+    double totalSavingGoals = calculateTotal(savingGoals);
+    double remainingAmountWithSG = totalIncomes - totalExpenses - totalSavingGoals;
+    double remainingAmount = totalIncomes - totalExpenses;
 
     cout << "Total Incomes: $" << totalIncomes << endl;
     cout << "Total Expenses: $" << totalExpenses << endl;
-    cout << "Total Savings Goals: $" << totalSavings << endl;
-    cout << "Remaining Amount with Savings Goals: $" << remainingAmountWithSavings << endl;
-    cout << "Remaining Amount without Savings Goals: $" << remainingAmountWithoutSavings << endl;
+    cout << "Total Saving Goals: $" << totalSavingGoals << endl;
+    cout << "Remaining Amount with Saving Goals: $" << remainingAmountWithSG << endl;
+    cout << "Remaining Amount: $" << remainingAmount << endl;
 }
 
 int main()
 {
     vector<Record> incomes = loadRecords("incomes.txt");
     vector<Record> expenses = loadRecords("expenses.txt");
-    vector<SavingGoal> goals;
+    vector<Record> savingGoals = loadRecords("savingGoals.txt");
 
-    while (true)
+    bool running = true;
+    while (running)
     {
         cout << "\n======== MENU ========\n"
                 "1. Add Income\n"
                 "2. Add Expense\n"
-                "3. Add Saving Goal\n"
+                "3. Add Saving Goals\n"
                 "4. View Incomes\n"
                 "5. View Expenses\n"
                 "6. View Saving Goals\n"
@@ -316,7 +299,6 @@ int main()
         int choice;
         cin >> choice;
 
-
         switch (choice)
         {
         case 1:
@@ -326,7 +308,7 @@ int main()
             addRecord(expenses);
             break;
         case 3:
-            addSavingGoal(goals);
+            addRecord(savingGoals);
             break;
         case 4:
             viewRecords(incomes, "Incomes");
@@ -335,70 +317,24 @@ int main()
             viewRecords(expenses, "Expenses");
             break;
         case 6:
-            viewSavingGoals(goals);
+            viewRecords(savingGoals, "Saving Goals");
             break;
-            case 7:
-            {
-                cout << "1. Update Income\n"
-                        "2. Update Expense\n"
-                        "3. Update Saving Goal\n"
-                        "Enter your choice:";
-                int updateChoice;
-                while (!(cin >> updateChoice) || (updateChoice < 1 || updateChoice > 3))
-                {
-                    cout << "Invalid input. Please enter a valid choice: ";
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                }
-
-                if (updateChoice == 1)
-                {
-                    updateRecord(incomes);
-                }
-                else if (updateChoice == 2)
-                {
-                    updateRecord(expenses);
-                }
-                else if (updateChoice == 3)
-                {
-                    updateSavingGoal(goals);
-                }
-                break;
-            }
+        case 7:
+            selectUpdateRecord(incomes, expenses, savingGoals);
+            break;
         case 8:
-        {
-            cout << "1. Delete Income\n"
-                    "2. Delete Expense\n"
-                    "3. Delete Saving Goal\n"
-                    "Enter your choice: ";
-            int deleteChoice;
-            cin >> deleteChoice;
-            if (deleteChoice == 1)
-            {
-                deleteRecord(incomes);
-            }
-            else if (deleteChoice == 2)
-            {
-                deleteRecord(expenses);
-            }
-            else if (deleteChoice == 3)
-            {
-                deleteSavingGoal(goals);
-            }
-            else
-            {
-                cerr << "Invalid choice." << endl;
-            }
+            selectDeleteRecord(incomes, expenses, savingGoals);
             break;
-        }
         case 9:
-            calculateSummary(incomes, expenses, goals);
+            calculateSummary(incomes, expenses, savingGoals);
             break;
         case 10:
             saveRecords("incomes.txt", incomes);
             saveRecords("expenses.txt", expenses);
+            saveRecords("savingGoals.txt", savingGoals);
             cout << "Exiting program." << endl;
-            return 0;
+            running = false;
+            break;
         default:
             cerr << "Invalid choice. Please try again." << endl;
             cin.clear();
