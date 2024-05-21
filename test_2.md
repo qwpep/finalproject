@@ -1,6 +1,7 @@
 Test 2 (add 2 expenses, delete one of them and calculate total)
 -
 **To add expenses select 2**
+
 Input:
 
     2
@@ -56,6 +57,7 @@ Output:
     Record deleted successfully.
 
 **To calculate and see total select 9**
+
 Input:
 
     9
