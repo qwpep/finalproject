@@ -3,6 +3,18 @@ Financial Records Management System
 
 This Financial Records Management System is a C++ program designed to help users manage their financial records such as incomes, expenses, and saving goals. The program allows users to add, view, update, and delete records, as well as calculate the total amount and display a summary of their financial data.
 
+How to Use
+-
+1)Compilation: Compile the code using a C++ compiler. For example:
+
+      g++ -o finance_manager main.cpp
+
+2)Execution: Run the compiled executable. For example:
+
+      ./finance_manager
+
+3)Menu Options: Follow the on-screen menu to perform various actions such as adding, viewing, updating, and deleting records.
+4)Saving Data: The program automatically saves records to separate text files (incomes.txt, expenses.txt, savingGoals.txt) when exiting.
 
 Features
 -
