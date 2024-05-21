@@ -5,16 +5,22 @@ This Financial Records Management System is a C++ program designed to help users
 
 How to Use
 -
-1)Compilation: Compile the code using a C++ compiler. For example:
-
-      g++ -o finance_manager main.cpp
-
-2)Execution: Run the compiled executable. For example:
-
-      ./finance_manager
-
-3)Menu Options: Follow the on-screen menu to perform various actions such as adding, viewing, updating, and deleting records.
-4)Saving Data: The program automatically saves records to separate text files (incomes.txt, expenses.txt, savingGoals.txt) when exiting.
+### Installation and Setup Instructions
+1. **Clone the Repository**:
+   ```
+   git clone https://github.com/qwpep/finalproject.git
+   ```
+2. **Compile the Source Code**:
+   ```
+   g++ finance_manager.cpp -o finance_manager
+   ```
+3. **Run the Program**:
+   ```
+   ./finance_manager
+   ```
+   
+4. Menu Options: Follow the on-screen menu to perform various actions such as adding, viewing, updating, and deleting records.
+5. Saving Data: The program automatically saves records to separate text files (incomes.txt, expenses.txt, savingGoals.txt) when exiting.
 
 Features
 -
